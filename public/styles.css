@@ -1,0 +1,32 @@
+:root {
+    --game-viewport-percentage: 0.8;
+    --background-color: #222;
+}
+
+body {
+    margin: 0;
+    background-color: var(--background-color);
+}
+
+#canvas-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+}
+
+.canvas-stack {
+    position: absolute;
+    width: round(
+        down,
+        calc(min(100vw, 100vh) * var(--game-viewport-percentage)),
+        1px
+    );
+    height: round(
+        down,
+        calc(min(100vw, 100vh) * var(--game-viewport-percentage)),
+        1px
+    );
+}
