@@ -10,6 +10,9 @@
     <script src="scripts/background-canvas.js"></script>
     <script src="scripts/gl-utils.js"></script>
     <script src="scripts/ui-canvas.js"></script>
+    <script src="scripts/modeling.js"></script>
+    <script src="scripts/renderer.js"></script>
+    <script src="scripts/light.js"></script>
     <script src="index.js"></script>
     <title>CSC 561 Final</title>
     <link
@@ -21,7 +24,12 @@
 <body>
     <div id="canvas-container">
         <canvas id="bg" class="canvas-stack"></canvas>
-        <canvas id="webgl" class="canvas-stack"></canvas>
+        <canvas
+            id="webgl"
+            class="canvas-stack"
+            width="512"
+            height="512"
+        ></canvas>
         <canvas id="ui" class="canvas-stack"></canvas>
     </div>
 </body>
