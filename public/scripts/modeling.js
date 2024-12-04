@@ -45,6 +45,20 @@ class Model {
     this.#applyMatrix(mat4.fromScaling(mat4.create(), [x, y, z]));
   }
 
+  merge(m) {
+    // yoink the vertices and triangles from the provided model
+    // don't forget to offset the triangle indices!
+    const offset = this.v.length;
+    for (let i = 0; i < m.v.length; i++) {
+      this.v.push(m.v[i]);
+      this.n.push(m.n[i]);
+      this.c.push(m.c[i]);
+    }
+    for (let i = 0; i < m.t.length; i++) {
+      this.t.push(m.t[i].map((idx) => idx + offset));
+    }
+  }
+
   #applyMatrix(m) {
     // m is a mat4
     // compute mat3 to apply to normal vector
@@ -92,8 +106,6 @@ class PolyPrism extends Model {
       const center = utils.center(points);
       // TODO (if I remember): add vec library to utils, use that instead
       const normal = [...utils.norm(utils.sub(utils.add(p1, p2), center)), 0];
-      console.log(utils.sub(utils.add(p1, p2), center));
-      console.log(normal);
       this.v.push([...p1, 0]);
       this.v.push([...p1, height]);
       this.v.push([...p2, height]);
@@ -104,6 +116,107 @@ class PolyPrism extends Model {
       }
       this.t.push([offset + 0, offset + 1, offset + 2]);
       this.t.push([offset + 2, offset + 3, offset + 0]);
+    }
+  }
+}
+
+// "variable cylinder" can be used to form cones, cylinders, or slanted cylinders.
+class VarCylinder extends Model {
+  // rb -> bottom of cylinder radius
+  // rt -> top of cylinder radius
+  // h -> cylinder height
+  // n -> number of points in circles
+  // t -> max. value of theta (up to 2*Math.PI)
+  // color => list of [r, g, b] (values between 0 and 1)
+  constructor(rb, rt, h, n, t, color) {
+    super();
+    let offset = 0;
+    // bottom circle
+    const bottomCircle = [];
+    const delta = t / (n - 1);
+    for (let i = 0; i < n; i++) {
+      bottomCircle.push([rb * Math.cos(i * delta), rb * Math.sin(i * delta)]);
+    }
+    this.v.push([0, 0, 0]);
+    this.n.push([0, 0, -1]);
+    this.c.push(color);
+
+    for (let i = 0; i < n; i++) {
+      this.v.push([...bottomCircle[i], 0]);
+      this.n.push([0, 0, -1]);
+      this.c.push(color);
+      this.t.push([0, i + 1, utils.mod(i + 1, n) + 1]);
+    }
+    offset += n + 1;
+    // top circle
+    const topCircle = [];
+    for (let i = 0; i < n; i++) {
+      topCircle.push([rt * Math.cos(i * delta), rt * Math.sin(i * delta)]);
+    }
+    this.v.push([0, 0, h]);
+    this.n.push([0, 0, 1]);
+    this.c.push(color);
+    for (let i = 0; i < n; i++) {
+      this.v.push([...topCircle[i], h]);
+      this.n.push([0, 0, 1]);
+      this.c.push(color);
+      this.t.push([offset, offset + i + 1, offset + utils.mod(i + 1, n) + 1]);
+    }
+    offset += n + 1;
+    // cone sides
+    const normalZ = (Math.sign(rb - rt) * Math.pow(rb - rt, 2)) / h;
+    for (let i = 0; i < n; i++) {
+      this.v.push([...bottomCircle[i], 0]);
+      this.n.push(utils.norm([...bottomCircle[i], normalZ]));
+      this.c.push(color);
+    }
+    for (let i = 0; i < n; i++) {
+      this.v.push([...topCircle[i], h]);
+      this.n.push(utils.norm([...topCircle[i], normalZ]));
+      this.c.push(color);
+    }
+    for (let i = 0; i < n; i++) {
+      this.t.push([offset + i, offset + utils.mod(i + 1, n), offset + n + i]);
+      this.t.push([
+        offset + n + i,
+        offset + n + utils.mod(i + 1, n),
+        offset + utils.mod(i + 1, n),
+      ]);
+    }
+  }
+}
+
+// sphereSlice can easily be used to just make spheres, or it can be used to make striped spheres :)
+class SphereSlice extends Model {
+  constructor(r, n, phi1, phi2, color) {
+    super();
+    // bands of circles
+    // normal is just equal to coordinates :)
+    const toCart = (r, theta, phi) => [
+      r * Math.sin(phi) * Math.cos(theta),
+      r * Math.sin(phi) * Math.sin(theta),
+      r * Math.cos(phi),
+    ];
+    const dtheta = (2 * Math.PI) / n;
+    const dphi = (phi2 - phi1) / (n - 1);
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        const theta = dtheta * j;
+        const phi = phi1 + dphi * i;
+        const p = toCart(r, theta, phi);
+        this.v.push(p);
+        this.n.push(utils.norm(p));
+        this.c.push(color);
+        // no triangles formed on last row of points
+        if (i !== n - 1) {
+          this.t.push([i * n + j, i * n + utils.mod(j + 1, n), i * n + j + n]);
+          this.t.push([
+            i * n + j + n,
+            i * n + utils.mod(j + 1, n) + n,
+            i * n + utils.mod(j + 1, n),
+          ]);
+        }
+      }
     }
   }
 }

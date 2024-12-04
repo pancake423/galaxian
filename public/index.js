@@ -35,18 +35,11 @@ window.onload = () => {
 };
 let angle = [0, 0, 0];
 function TEST_SCRIPT() {
-  const test = new PolyPrism(
-    [
-      [0, 0],
-      [2, 0],
-      [2, 1],
-      [1, 2],
-      [0, 2],
-    ],
-    1,
-    [0.8, 0.8, 0.8],
-  );
-  test.scale(1, 2, 1);
+  const test = new SphereSlice(1, 20, 0, Math.PI / 2, [1, 1, 1]);
+  const t2 = new VarCylinder(1, 0.5, 1, 20, Math.PI, [1, 0, 0]);
+  console.log(t2);
+  test.merge(t2);
+  //test.scale(1, 1, 2);
   renderer.registerModel("cube", test);
   renderer.loadModels();
   renderer.setCamera(camera);

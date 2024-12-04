@@ -36,6 +36,7 @@ function initProgram() {
 // note: assumes that buffer data is a 2d array. The number of items per entry in the
 // actual flat buffer is calculated based on the size of the inner arrays.
 function initBuffer(attribName, bufferData) {
+  console.log(bufferData);
   const attributeLocation = gl.getAttribLocation(program, attribName);
   const buffer = gl.createBuffer();
   const flatData = [];

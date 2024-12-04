@@ -25,7 +25,6 @@ class Renderer {
     initBuffer("a_color", this.c);
 
     // load triangle indices into ELEMENT_ARRAY_BUFFER
-    console.log(new Uint16Array(utils.flatten(this.t)));
     const triangleBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleBuffer);
     gl.bufferData(
