@@ -1,5 +1,7 @@
 /*
 global variables :)
+To see total lines of code written:
+git ls-files | grep js | xargs wc -l
 */
 var bg;
 var ui;
@@ -28,35 +30,23 @@ window.onload = () => {
   uniforms = getUniformLocations(uniformNames);
   gl.enable(gl.DEPTH_TEST);
   // load models and prepare to draw
-  initRenderer();
-  TEST_SCRIPT();
+  generateAndLoadModels();
+  renderer.setCamera(camera);
+  renderer.setLight(light);
   // start game loop
   step();
 };
-let angle = [0, 0, 0];
-function TEST_SCRIPT() {
-  const test = new SphereSlice(1, 20, 0, Math.PI / 2, [1, 1, 1]);
-  const t2 = new VarCylinder(0.5, 1, 1, 20, Math.PI, [1, 0, 0]);
-  console.log(t2);
-  test.merge(t2);
-  //test.scale(1, 1, 2);
-  renderer.registerModel("cube", test);
-  renderer.loadModels();
-  renderer.setCamera(camera);
-  renderer.setLight(light);
-}
-
-// read from modelFuncs
-// generate + store models, initialize renderer
-function initRenderer() {}
 
 // calculate and draw one frame of the game.
 function step() {
   draw();
+  //angle[2] += 0.1;
+  angle[1] += 0.5;
   requestAnimationFrame(step);
 }
-
+//[pitch, roll, yaw]
+let angle = [0, 0, 0];
 function draw() {
   bg.draw();
-  renderer.draw("cube", [0, 0, 8], angle, [1, 1, 1]);
+  renderer.draw("ship", [0, 0, 3], angle, [1, 1, 1]);
 }

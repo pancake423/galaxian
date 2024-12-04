@@ -188,7 +188,7 @@ class VarCylinder extends Model {
 
 // sphereSlice can easily be used to just make spheres, or it can be used to make striped spheres :)
 class SphereSlice extends Model {
-  constructor(r, n, phi1, phi2, color) {
+  constructor(r, n, phi1, phi2, color, closed = false) {
     super();
     // bands of circles
     // normal is just equal to coordinates :)
@@ -216,6 +216,26 @@ class SphereSlice extends Model {
             i * n + utils.mod(j + 1, n),
           ]);
         }
+      }
+    }
+
+    const addCircle = (r, phi, offset, normal) => {
+      for (let i = 0; i < n; i++) {
+        const theta = dtheta * i;
+        this.v.push(toCart(r, theta, phi));
+        this.n.push(normal);
+        this.c.push(color);
+        if (i > 0 && i < n - 1) {
+          this.t.push([offset, offset + i, offset + i + 1]);
+        }
+      }
+    };
+    if (closed) {
+      if (phi1 != 0) {
+        addCircle(r, phi1, this.v.length, [0, 0, 1]);
+      }
+      if (phi2 != Math.PI) {
+        addCircle(r, phi2, this.v.length, [0, 0, -1]);
       }
     }
   }
