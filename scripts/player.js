@@ -6,8 +6,8 @@ class Player {
 
     this.mx = 0;
     this.maxSpeed = 5;
-    this.accel = 0.3;
-    this.fric = 0.1;
+    this.accel = 30;
+    this.fric = 10;
 
     this.maxYaw = -20;
     this.maxRoll = -20;
@@ -25,13 +25,13 @@ class Player {
     const dt = Date.now() - this.t;
 
     if (keys.isPressed("KeyA") || keys.isPressed("ArrowLeft")) {
-      this.mx += this.accel;
+      this.mx += (this.accel * dt) / 1000;
     }
     if (keys.isPressed("KeyD") || keys.isPressed("ArrowRight")) {
-      this.mx -= this.accel;
+      this.mx -= (this.accel * dt) / 1000;
     }
-    this.mx -= Math.sign(this.mx) * this.fric;
-    if (Math.abs(this.mx) <= this.fric) this.mx = 0;
+    this.mx -= (Math.sign(this.mx) * this.fric * dt) / 1000;
+    if (Math.abs(this.mx) <= (this.fric * dt) / 1000) this.mx = 0;
     if (Math.abs(this.mx) > this.maxSpeed)
       this.mx = this.maxSpeed * Math.sign(this.mx);
     this.x += (this.mx * dt) / 1000;
