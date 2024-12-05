@@ -30,7 +30,7 @@ class Camera {
       this.fov,
       this.aspectRatio,
       0.01,
-      10,
+      100,
     );
   }
   /*TODO: calculate lighting in world space is fine?

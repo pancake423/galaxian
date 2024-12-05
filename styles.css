@@ -2,6 +2,10 @@
     --game-viewport-percentage: 0.8;
     --background-color: #222;
 }
+@font-face {
+    font-family: Retro;
+    src: url(assets/PressStart2P-Regular.ttf);
+}
 
 body {
     margin: 0;

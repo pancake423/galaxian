@@ -11,11 +11,12 @@ var gl;
 var program;
 var uniforms;
 var renderer;
+var events;
+var keys;
 
 window.onload = () => {
   // initialize global variables
   bg = new BackgroundCanvas(document.getElementById("bg"));
-  ui = new UICanvas(document.getElementById("ui"));
   gl = document.getElementById("webgl").getContext("webgl");
   camera = new Camera();
   light = new Light(
@@ -29,6 +30,10 @@ window.onload = () => {
   program = initProgram();
   uniforms = getUniformLocations(uniformNames);
   gl.enable(gl.DEPTH_TEST);
+  events = new EventEmitter();
+  keys = new KeyTracker();
+  ui = new UICanvas(document.getElementById("ui"));
+  ui.showMessage("PRESS ANY KEY TO START", true);
   // load models and prepare to draw
   generateAndLoadModels();
   renderer.setCamera(camera);
@@ -41,12 +46,14 @@ window.onload = () => {
 function step() {
   draw();
   //angle[2] += 0.1;
-  angle[1] += 0.5;
+  //angle[1] += 0.5;
   requestAnimationFrame(step);
 }
+
 //[pitch, roll, yaw]
 let angle = [0, 0, 0];
 function draw() {
   bg.draw();
-  renderer.draw("ship", [0, 0, 3], angle, [1, 1, 1]);
+  ui.draw();
+  renderer.draw("ship", [0, 0, 5], angle, [1, 1, 1]);
 }

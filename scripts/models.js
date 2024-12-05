@@ -3,11 +3,11 @@ MODELS_N = 20; // number of sides for spherical primitives in all models.
 function generateAndLoadModels() {
   const modelGenerators = [
     [modelSpaceship, "ship"],
-    /*[modelAlien1, "alien1"],
-    [modelAlien2, "alien2"],
-    [modelAlienWing, "alienwing"],
+    [modelAlienWing, "wing"],
     [modelPlayerBullet, "pbullet"],
-    [modelAlienBullet, "abullet"],*/
+    [modelAlienBullet, "abullet"],
+    /*[modelAlien1, "alien1"],
+    [modelAlien2, "alien2"],*/
   ];
   for (const g of modelGenerators) {
     const model = g[0]();
@@ -34,7 +34,7 @@ function standardizeModel(m) {
 function modelSpaceship() {
   // constants that define the spaceship's appearance
   const bodyColor = [0.8, 0.8, 0.8];
-  const visorColor = [1, 0.4, 0.2];
+  const visorColor = [0.8, 0.2, 0.2];
   const tubeColor = [0.4, 0.4, 0.4];
 
   const bodyLength = 3;
@@ -42,7 +42,7 @@ function modelSpaceship() {
 
   const noseLength = 2.5;
 
-  const wsSize = 0.9;
+  const wsSize = 0.8;
   const wsLength = 2.3;
 
   const wingWidth = 3.5;
@@ -124,8 +124,50 @@ function modelAlien1() {}
 
 function modelAlien2() {}
 
-function modelAlienWing() {}
+function modelAlienWing() {
+  const outHeight = 0.5;
 
-function modelPlayerBullet() {}
+  const wingThickness = 0.1;
+  const wingColor = [0.8, 0.8, 0.8];
+  const baseWidth = 0.45;
+  const midWidth = 1;
+  const topWidth = 0.55;
+  const midHeight = 1;
+  const topHeight = 1.5;
+  wing = new PolyPrism(
+    [
+      [-baseWidth / 2, 0],
+      [baseWidth / 2, 0],
+      [midWidth / 2, midHeight],
+      [topWidth / 2, topHeight],
+      [-topWidth / 2, topHeight],
+      [-midWidth / 2, midHeight],
+    ],
+    wingThickness,
+    wingColor,
+  );
+  wing.scale(
+    (1 / topHeight) * outHeight,
+    (1 / topHeight) * outHeight,
+    (1 / topHeight) * outHeight,
+  );
+  return wing;
+}
 
-function modelAlienBullet() {}
+function modelBullet(color) {
+  const length = 4;
+  const bullet = new SphereSlice(1, MODELS_N / 2, 0, Math.PI, color);
+  bullet.scale(1, length, 1);
+
+  return standardizeModel(bullet);
+}
+
+function modelPlayerBullet() {
+  const color = [1, 0, 0];
+  return modelBullet(color);
+}
+
+function modelAlienBullet() {
+  const color = [0, 0.5, 1];
+  return modelBullet(color);
+}
