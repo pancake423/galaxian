@@ -29,4 +29,5 @@ const utils = {
     }
     return utils.scale(sum, 1 / vlist.length);
   },
+  randRange: (min, max) => Math.floor(Math.random() * (max - min)) + min,
 };

@@ -13,6 +13,8 @@ var uniforms;
 var renderer;
 var events;
 var keys;
+var player;
+var aliens = [];
 
 window.onload = () => {
   // initialize global variables
@@ -34,10 +36,12 @@ window.onload = () => {
   keys = new KeyTracker();
   ui = new UICanvas(document.getElementById("ui"));
   ui.showMessage("PRESS ANY KEY TO START", true);
+  player = new Player();
   // load models and prepare to draw
   generateAndLoadModels();
   renderer.setCamera(camera);
   renderer.setLight(light);
+
   // start game loop
   step();
 };
@@ -45,15 +49,15 @@ window.onload = () => {
 // calculate and draw one frame of the game.
 function step() {
   draw();
-  //angle[2] += 0.1;
-  //angle[1] += 0.5;
+  player.update();
+  updateAliens();
   requestAnimationFrame(step);
 }
 
-//[pitch, roll, yaw]
 let angle = [0, 0, 0];
 function draw() {
   bg.draw();
   ui.draw();
-  renderer.draw("ship", [0, 0, 5], angle, [1, 1, 1]);
+  player.draw();
+  drawAliens();
 }

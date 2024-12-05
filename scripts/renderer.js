@@ -62,7 +62,8 @@ class Renderer {
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   }
-  draw(name, translation, rotation, scale) {
+  // TODO: accept "pre transforms" for drawing wings on bugs correctly :)
+  draw(name, translation, rotation, scale, preTransform) {
     // draws the specified model with the given transformations applied (assumes models are centered at the origin).
     // all transformations are 3-vectors.
 
@@ -73,6 +74,9 @@ class Renderer {
     quat.fromEuler(q, ...rotation);
     mat4.fromRotationTranslationScale(modelTransform, q, translation, scale);
     mat3.normalFromMat4(modelNormalTransform, modelTransform);
+    if (preTransform !== undefined) {
+      mat4.multiply(modelTransform, modelTransform, preTransform);
+    }
 
     // 2. pass matrices to webgl unforms
     gl.uniformMatrix4fv(uniforms["u_model_mat"], false, modelTransform);

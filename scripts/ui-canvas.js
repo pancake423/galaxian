@@ -29,6 +29,7 @@ class UICanvas extends CanvasBase {
       events.removeListener(this.startuid);
       this.hideTitle();
       this.hideMessage();
+      spawnAliens();
     });
   }
 

@@ -10,6 +10,12 @@ class KeyTracker {
     window.onkeyup = (e) => {
       this.keys[e.code] = false;
     };
+    // turn off all keys when the window loses focus
+    window.onblur = () => {
+      for (const key in this.keys) {
+        this.keys[key] = false;
+      }
+    };
   }
   isPressed(code) {
     return this.keys[code] == true;

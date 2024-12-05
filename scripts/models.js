@@ -3,11 +3,12 @@ MODELS_N = 20; // number of sides for spherical primitives in all models.
 function generateAndLoadModels() {
   const modelGenerators = [
     [modelSpaceship, "ship"],
-    [modelAlienWing, "wing"],
+    [modelWaspWing, "wing1"],
+    [modelDragonflyWing, "wing2"],
     [modelPlayerBullet, "pbullet"],
     [modelAlienBullet, "abullet"],
-    /*[modelAlien1, "alien1"],
-    [modelAlien2, "alien2"],*/
+    [modelAlien1, "alien1"],
+    [modelAlien2, "alien2"],
   ];
   for (const g of modelGenerators) {
     const model = g[0]();
@@ -120,18 +121,139 @@ function modelSpaceship() {
   return standardizeModel(spaceship);
 }
 
-function modelAlien1() {}
+function stripedSphere(c1, c2, n) {
+  m = new Model();
+  const dphi = Math.PI / n;
+  for (let i = 0; i < n; i++) {
+    const phi = dphi * i;
+    const stripe = new SphereSlice(
+      1,
+      MODELS_N,
+      phi,
+      phi + dphi,
+      i % 2 == 0 ? c1 : c2,
+    );
+    m.merge(stripe);
+  }
+  m.rotate(90, 0, 0);
+  return m;
+}
 
-function modelAlien2() {}
+function modelAlien1() {
+  // wasp fella
+  const bodyColor = [0.8, 0.8, 0];
+  const stripeColor = [0.8, 0, 0];
+  const eyeColor = [0.8, 0, 0];
+  const stingerColor = [1, 1, 1];
 
-function modelAlienWing() {
-  const outHeight = 0.5;
+  const headSize = 0.7;
+  const headStretch = 1.3;
+  const headOffset = 1.5;
+  const bodyLength = 2.1;
+  const bodyOffset = 2.4;
+  const eyeSize = 0.45;
+  const eyeOffset = 0.4;
+  const bodyStretch = 1.1;
+  const stingerSize = 0.2;
+
+  const bodyStripes = 4;
+  const abdStripes = 7;
+  // thorax
+  const wasp = stripedSphere(stripeColor, bodyColor, bodyStripes);
+  // head
+  const head = new SphereSlice(headSize, MODELS_N, 0, Math.PI, bodyColor);
+  head.scale(1, headStretch, 1);
+  head.translate(0, headOffset, 0);
+  wasp.merge(head);
+  // abdomen
+  const abdomen = stripedSphere(bodyColor, stripeColor, abdStripes);
+  abdomen.scale(bodyStretch, bodyLength, bodyStretch);
+  abdomen.translate(0, -bodyOffset, 0);
+  wasp.merge(abdomen);
+  // eyes
+  const eye = new SphereSlice(eyeSize, MODELS_N, 0, Math.PI, eyeColor);
+  eye.scale(1, headStretch, 1);
+  eye.translate(eyeOffset, headOffset + 0.1, -0.15);
+  wasp.merge(eye);
+  eye.translate(eyeOffset * -2, 0, 0);
+  wasp.merge(eye);
+  // stinger
+  const stinger = new VarCylinder(1, 0, 1, MODELS_N, 2 * Math.PI, stingerColor);
+  stinger.rotate(90, 0, 0);
+  stinger.scale(stingerSize, 1, stingerSize);
+  stinger.translate(0, -bodyOffset - bodyLength + 0.1, 0);
+  wasp.merge(stinger);
+
+  return standardizeModel(wasp);
+}
+
+function modelAlien2() {
+  // dragonfly fella (mini boss)
+  const bodyColor = [0.6, 0.6, 0.8];
+  const stripeColor = [0, 0.4, 0.8];
+  const eyeColor = [0.8, 0, 0];
+
+  const headSize = 0.8;
+  const headStretch = 1.3;
+  const headOffset = 1.7;
+  const eyeSize = 0.45;
+  const eyeOffset = 0.55;
+
+  const bodyStripes = 3;
+  const tailSegments = 6;
+  const tailSegmentLength = 1;
+  const tailRadius = 0.3;
+
+  const dragonfly = stripedSphere(stripeColor, bodyColor, bodyStripes);
+  // head
+  const head = new SphereSlice(headSize, MODELS_N, 0, Math.PI, bodyColor);
+  head.scale(headStretch, 1, 1);
+  head.translate(0, headOffset, 0);
+  dragonfly.merge(head);
+  // eyes
+  const eye = new SphereSlice(eyeSize, MODELS_N, 0, Math.PI, eyeColor);
+  eye.scale(headStretch, 1, 1);
+  eye.translate(eyeOffset, headOffset + 0.6, -0.25);
+  dragonfly.merge(eye);
+  eye.translate(eyeOffset * -2, 0, 0);
+  dragonfly.merge(eye);
+  // tail
+  for (let i = 0; i < tailSegments; i++) {
+    const seg = new VarCylinder(
+      tailRadius,
+      i == tailSegments - 1 ? 0 : tailRadius,
+      tailSegmentLength,
+      MODELS_N,
+      2 * Math.PI,
+      i % 2 == 0 ? bodyColor : stripeColor,
+    );
+    seg.rotate(90, 0, 0);
+    seg.translate(0, -0.5 - tailSegmentLength * i, 0);
+    dragonfly.merge(seg);
+  }
+
+  return standardizeModel(dragonfly);
+}
+
+function modelAlien3() {
+  // the boss (spaceship of some sort??)
+}
+
+function modelWaspWing() {
+  return modelAlienWing([0, 0.4, 0.8]);
+}
+function modelDragonflyWing() {
+  return modelAlienWing([0.6, 0, 0]);
+}
+
+function modelAlienWing(color) {
+  const outHeight = 1;
 
   const wingThickness = 0.1;
-  const wingColor = [0.8, 0.8, 0.8];
-  const baseWidth = 0.45;
-  const midWidth = 1;
-  const topWidth = 0.55;
+  const wingColor = color;
+  const baseWidth = 0.2;
+  const midWidth = 0.7;
+  const topWidth = 0.3;
   const midHeight = 1;
   const topHeight = 1.5;
   wing = new PolyPrism(

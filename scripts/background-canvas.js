@@ -1,7 +1,7 @@
 class BackgroundCanvas extends CanvasBase {
   bgColor = "black";
   numStars = "100";
-  scrollSpeed = 0.02; //in screens per second; ie. 0.1 means 1/10th of the screen scrolls by per second
+  scrollSpeed = 0.1; //in screens per second; ie. 0.1 means 1/10th of the screen scrolls by per second
   starSize = 0.002;
   starColors = [
     "white",
