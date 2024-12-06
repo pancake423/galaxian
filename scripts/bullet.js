@@ -35,6 +35,14 @@ class Bullet {
 
   kill() {
     this.alive = false;
+    particleExplosion(
+      this.x,
+      this.y,
+      this.z,
+      this.isPlayer ? ["particleRed"] : ["particleBlue"],
+      10,
+      1,
+    );
   }
 }
 
@@ -44,17 +52,19 @@ function updateBullets() {
     b.update();
     if (b.isPlayer) {
       for (const a of aliens) {
-        if (a.dz == 0 && b.isColliding(...a.getBoundingRect())) {
-          a.kill();
+        if (b.isColliding(...a.getBoundingRect())) {
+          a.health--;
           b.kill();
         }
       }
     } else if (
+      b.isPlayer == false &&
       player.z == GAME_Z_PLANE &&
       b.isColliding(...player.getBoundingRect())
     ) {
       // the player has been struck!
       player.kill();
+      b.kill();
     }
   }
 }

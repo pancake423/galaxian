@@ -10,6 +10,30 @@
 body {
     margin: 0;
     background-color: var(--background-color);
+    font-family: Retro;
+    color: white;
+    overflow-y: hidden;
+}
+h3 {
+    text-align: center;
+    margin: 0;
+}
+
+#controls-container {
+    position: absolute;
+    width: 20rem;
+    bottom: 0;
+    left: 0;
+    box-sizing: border-box;
+    padding: 1rem;
+    background-color: #333;
+    transform: translateY(80%);
+    transition-duration: 0.25s;
+    border-top-right-radius: 1rem;
+    user-select: none;
+}
+#controls-container:hover {
+    transform: none;
 }
 
 #canvas-container {
@@ -33,4 +57,5 @@ body {
         calc(min(100vw, 100vh) * var(--game-viewport-percentage)),
         1px
     );
+    border-radius: 1rem;
 }

@@ -29,6 +29,7 @@ class UICanvas extends CanvasBase {
       events.removeListener(this.startuid);
       this.hideTitle();
       this.hideMessage();
+      sounds.music.play();
       events.raiseEvent("levelCleared");
     });
   }
@@ -116,9 +117,9 @@ class UICanvas extends CanvasBase {
     if (player.isDespawned && !player.isRespawning && blinkOn) {
       this.ctx.textAlign = "center";
       this.ctx.textBaseline = "bottom";
-      this.ctx.font = "10px Retro";
+      this.ctx.font = "15px Retro";
       this.ctx.fillText(
-        "PRESS ENTER TO RESPAWN",
+        `PRESS ENTER TO ${this.lives == 0 ? "RESTART" : "RESPAWN"}`,
         this.w / 2,
         this.h - this.padding,
       );
@@ -131,14 +132,33 @@ class UICanvas extends CanvasBase {
     this.blinkOn = blink;
     this.message = m;
     this.messageOn = true;
+    this.showTitle();
   }
   hideMessage() {
     this.messageOn = false;
+    this.hideTitle();
   }
   showTitle() {
     this.titleOn = true;
   }
   hideTitle() {
     this.titleOn = false;
+  }
+
+  drawHealthBar(percentage) {
+    this.padding /= 4;
+    const barWidth = this.w / 4;
+    const barHeight = this.h / 32;
+    this.ctx.fillStyle = "white";
+    console.log(this.w / 4, this.padding * 2 + 40, barWidth, barHeight);
+    this.ctx.fillRect(this.padding, this.padding * 2 + 40, barWidth, barHeight);
+    this.ctx.fillStyle = "red";
+    this.ctx.fillRect(
+      this.padding * 2,
+      this.padding * 3 + 40,
+      (barWidth - 2 * this.padding) * percentage,
+      barHeight - 2 * this.padding,
+    );
+    this.padding *= 4;
   }
 }

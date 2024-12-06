@@ -12,7 +12,7 @@ class Player {
     this.maxYaw = -20;
     this.maxRoll = -20;
 
-    this.firingDelay = 1000;
+    this.firingDelay = 750;
     this.tFire = Date.now() - 500;
     this.bulletYSpeed = 15;
 
@@ -26,6 +26,8 @@ class Player {
 
     this.isDespawned = false;
     this.isRespawning = false;
+
+    this.invulTime = 1000;
 
     this.t = Date.now();
   }
@@ -43,11 +45,13 @@ class Player {
         this.isDespawned = false;
         this.y = -GAME_Z_PLANE + 2;
         this.z = GAME_Z_PLANE;
+        this.invulTime = 1000;
       }
       this.t = Date.now();
     }
     if (this.isDespawned) return;
     const dt = Date.now() - this.t;
+    if (this.invulTime > 0) this.invulTime -= dt;
     // shooting
     if (keys.isPressed("Space") && this.t - this.tFire > this.firingDelay) {
       this.tFire = this.t;
@@ -57,6 +61,7 @@ class Player {
         true,
       );
       bullets.push(b);
+      sounds.playLaser();
     }
     // movement
     if (keys.isPressed("KeyA") || keys.isPressed("ArrowLeft")) {
@@ -100,6 +105,15 @@ class Player {
   }
 
   kill() {
+    if (this.invulTime > 0) return;
+    sounds.playExplosion();
+    particleExplosion(
+      this.x,
+      this.y,
+      this.z,
+      ["particleGray", "particleWhite", "particleRed"],
+      25,
+    );
     events.raiseEvent("playerKill");
   }
   despawn() {

@@ -13,11 +13,15 @@ class Alien {
     this.minWingAngle = -70;
     this.maxWingAngle = -10;
 
+    this.health = 1;
+    this.maxHealth = 1;
+
     this.r = utils.randRange(0, 1000);
 
     this.inFormation = false;
     this.dropIn = true;
     this.lowering = false;
+    this.bomber = false;
     this.dx = 0;
     this.dy = GAME_Z_PLANE + this.y;
     this.dz = -1;
@@ -33,6 +37,9 @@ class Alien {
 
   update() {
     const dt = Date.now() - this.t;
+    if (this.health <= 0) {
+      this.kill();
+    }
     this.pitch = this.roll = 0;
     this.dx =
       Math.sin((this.t / 1000) * GlobalAlienControls.oscillateSpeed) *
@@ -57,6 +64,7 @@ class Alien {
           );
           bullets.push(b);
           this.shotsFired++;
+          sounds.playLaser();
         }
       }
       if (this.dropIn) {
@@ -70,6 +78,9 @@ class Alien {
         this.dy = GAME_Z_PLANE + 1;
         this.dropIn = true;
         this.dz -= 1;
+        if (this.bomber) {
+          this.kill(false);
+        }
       }
     }
     if (this.lowering) {
@@ -153,18 +164,45 @@ class Alien {
       this.scale[1] * 2,
     ];
   }
-  kill() {
+  kill(score = true) {
     this.alive = false;
-    events.raiseEvent("alienKill", this.type);
+    if (this.type == "alien1") {
+      particleExplosion(
+        this.x + this.dx,
+        this.y + this.dy,
+        this.z + this.dz,
+        ["particleRed", "particleYellow", "particleBlue"],
+        25,
+      );
+    } else {
+      particleExplosion(
+        this.x + this.dx,
+        this.y + this.dy,
+        this.z + this.dz,
+        ["particleWhite", "particleRed", "particleBlue"],
+        25,
+      );
+    }
+
+    if (score) {
+      events.raiseEvent("alienKill", this.type);
+      sounds.playExplosion();
+    }
     if (aliens.length == 1) events.raiseEvent("levelCleared");
   }
   descend() {
     this.shotsFired = 0;
     this.inFormation = false;
     const start = Date.now();
-    this.descendStart = start + 1000;
+    const r1 = utils.uniform(2.5, 3.5);
+    const r2 = utils.uniform(1.5, 2.5);
+    const s = utils.randSign();
+    this.descendStart = start + 1000 + utils.randRange(0, 100);
     this.descentFunctionX = (t) =>
-      Math.sin((3 * (t - start)) / 1000) * 2 * Math.min(1, (t - start) / 1000);
+      Math.sin((r1 * (t - start)) / 1000) *
+      r2 *
+      Math.min(1, (t - start) / 1000) *
+      s;
     this.descentFunctionY = (t) =>
       ((t - start) / 1000) * -GlobalAlienControls.descentSpeed;
 
@@ -185,7 +223,7 @@ function computePreTransform(rotation, translation, scale) {
   return modelTransform;
 }
 
-const GlobalAlienControls = {
+const GlobalAlienControlDefaults = {
   oscillateSpeed: 1,
   flapSpeed: 12,
   oscillateDist: 1,
@@ -195,10 +233,25 @@ const GlobalAlienControls = {
   descentSpeed: 3, // rate at which aliens run at ya
   bulletSpeed: 10,
 };
+const GlobalAlienControls = {};
+
+function resetGlobalAlienControls() {
+  for (const key in GlobalAlienControlDefaults) {
+    GlobalAlienControls[key] = GlobalAlienControlDefaults[key];
+  }
+}
 
 function spawnAliens() {
+  aliens = [];
   GlobalAlienControls.descentTime =
     Date.now() + GlobalAlienControls.initialDescentDelay * 1000;
+
+  if (ui.level % BOSS_LEVEL == 0) {
+    const b = new Boss(20 + ui.level);
+    aliens.push(b);
+    return;
+  }
+
   const numRows = 2;
   const numCols = 10;
   const numBoss = 3;
@@ -255,7 +308,6 @@ function updateAliens() {
       a.descend();
       if (a.type == "alien2") {
         // if it happens to be a dragonfly, send out two closest hornets
-        console.log("yeeting hornets");
         launchClosestHornet(a.x, a.y);
         launchClosestHornet(a.x, a.y);
       }

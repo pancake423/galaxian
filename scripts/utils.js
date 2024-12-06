@@ -32,6 +32,7 @@ const utils = {
   },
   randRange: (min, max) => Math.floor(Math.random() * (max - min)) + min,
   uniform: (min, max) => Math.random() * (max - min) + min,
+  randSign: () => Math.sign(Math.random() - 0.5),
   rectCollide: (r1, r2) => {
     return (
       utils.intervalOverlap(r1[0], r1[0] + r1[2], r2[0], r2[0] + r2[2]) &&

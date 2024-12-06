@@ -9,6 +9,14 @@ function generateAndLoadModels() {
     [modelAlienBullet, "abullet"],
     [modelAlien1, "alien1"],
     [modelAlien2, "alien2"],
+    [modelMissile, "missile"],
+    [modelBoss, "boss"],
+    [() => modelParticle([0.4, 0.4, 0.4]), "particleGray"],
+    [() => modelParticle([0.8, 0.8, 0.8]), "particleWhite"],
+    [() => modelParticle([0.8, 0.2, 0.2]), "particleRed"],
+    [() => modelParticle([0.8, 0.8, 0.2]), "particleYellow"],
+    [() => modelParticle([0.2, 0.4, 0.8]), "particleBlue"],
+    [() => modelParticle([0.2, 0.8, 0.4]), "particleGreen"],
   ];
   for (const g of modelGenerators) {
     const model = g[0]();
@@ -235,10 +243,6 @@ function modelAlien2() {
   return standardizeModel(dragonfly);
 }
 
-function modelAlien3() {
-  // the boss (spaceship of some sort??)
-}
-
 function modelWaspWing() {
   return modelAlienWing([0, 0.4, 0.8]);
 }
@@ -292,4 +296,85 @@ function modelPlayerBullet() {
 function modelAlienBullet() {
   const color = [0, 0.5, 1];
   return modelBullet(color);
+}
+
+function modelParticle(color) {
+  const m = new SphereSlice(1, MODELS_N / 2, 0, Math.PI, color);
+  return m;
+}
+
+function modelMissile() {
+  const missile = new VarCylinder(
+    1,
+    1,
+    6,
+    MODELS_N,
+    2 * Math.PI,
+    [0.4, 0.4, 0.4],
+  );
+  const noseCone = new VarCylinder(
+    1,
+    0.2,
+    3,
+    MODELS_N,
+    2 * Math.PI,
+    [0.6, 0, 0],
+  );
+
+  noseCone.translate(0, 0, 6);
+  missile.merge(noseCone);
+  missile.rotate(-90, 0, 0);
+
+  const tailFin = new PolyPrism(
+    [
+      [0, 0],
+      [1, 0],
+      [1, 0.5],
+      [0, 1],
+    ],
+    0.5,
+    [0.6, 0, 0],
+  );
+
+  tailFin.translate(0.8, 0, 0);
+  missile.merge(tailFin);
+  tailFin.rotate(0, 90, 0);
+  missile.merge(tailFin);
+  tailFin.rotate(0, 90, 0);
+  missile.merge(tailFin);
+  tailFin.rotate(0, 90, 0);
+  missile.merge(tailFin);
+
+  return standardizeModel(missile);
+}
+
+function modelBoss() {
+  const bodyRadius = 1.5;
+  const lightRadius = 0.1;
+  const numLights = 10;
+  const bodyColor = [0.4, 0.4, 0.4];
+  const accentColor = [0.2, 0.8, 0.4];
+  const domeColor = [0.2, 0.4, 0.2];
+
+  const body = new VarCylinder(
+    bodyRadius,
+    bodyRadius,
+    0.25,
+    MODELS_N * 2,
+    2 * Math.PI,
+    bodyColor,
+  );
+
+  let dome = new SphereSlice(1, MODELS_N * 2, 0, Math.PI / 2, domeColor);
+  body.merge(dome);
+  dome = new SphereSlice(1, MODELS_N, 0, Math.PI / 2, accentColor);
+  dome.scale(lightRadius, lightRadius, lightRadius);
+  dome.translate(1 + (bodyRadius - 1) / 2, 0, 0.25);
+  for (let i = 0; i < numLights; i++) {
+    body.merge(dome);
+    dome.rotate(0, 0, 360 / numLights);
+  }
+  body.rotate(180, 0, 0);
+
+  return standardizeModel(body);
 }
