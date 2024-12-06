@@ -59,7 +59,7 @@ class Boss {
       this.y,
       this.z,
       ["particleGreen"],
-      500,
+      100,
       10,
       2,
     );

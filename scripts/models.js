@@ -1,4 +1,4 @@
-MODELS_N = 20; // number of sides for spherical primitives in all models.
+MODELS_N = 10; // number of sides for spherical primitives in all models.
 
 function generateAndLoadModels() {
   const modelGenerators = [
@@ -299,7 +299,7 @@ function modelAlienBullet() {
 }
 
 function modelParticle(color) {
-  const m = new SphereSlice(1, MODELS_N / 2, 0, Math.PI, color);
+  const m = new SphereSlice(1, 5, 0, Math.PI, color);
   return m;
 }
 
