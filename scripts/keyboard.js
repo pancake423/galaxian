@@ -3,9 +3,14 @@ class KeyTracker {
     this.keys = {};
     window.onkeydown = (e) => {
       if (this.keys[e.code] == true) return;
-      events.raiseEvent("KeyAny");
       events.raiseEvent(e.code);
       this.keys[e.code] = true;
+      if (e.key == "!") {
+        events.raiseEvent("specialMode");
+      }
+      if (e.code == "Enter") {
+        events.raiseEvent("KeyEnter");
+      }
     };
     window.onkeyup = (e) => {
       this.keys[e.code] = false;

@@ -25,11 +25,11 @@ class UICanvas extends CanvasBase {
     this.missileGraphic = new Image();
     this.missileGraphic.src = "assets/missile.png";
 
-    this.startuid = events.addListener("KeyAny", () => {
+    this.startuid = events.addListener("KeyEnter", () => {
       events.removeListener(this.startuid);
       this.hideTitle();
       this.hideMessage();
-      spawnAliens();
+      events.raiseEvent("levelCleared");
     });
   }
 
@@ -59,6 +59,8 @@ class UICanvas extends CanvasBase {
 
   draw() {
     const frameT = Date.now();
+    const blinkOn =
+      Math.floor((Date.now() - this.tStart) / this.blinkRate) % 2 == 0;
     const dt = frameT - this.t;
     this.ctx.clearRect(0, 0, this.w, this.h);
     if (this.messageOn) {
@@ -99,11 +101,7 @@ class UICanvas extends CanvasBase {
       );
       x -= this.iconSize * 1.5;
     }
-    if (
-      this.messageOn &&
-      (Math.floor((Date.now() - this.tStart) / this.blinkRate) % 2 == 0 ||
-        this.blinkOn == false)
-    ) {
+    if (this.messageOn && (blinkOn || this.blinkOn == false)) {
       this.ctx.textAlign = "center";
       this.ctx.textBaseline = "middle";
       this.ctx.fillText(this.message, this.w / 2, this.h / 2);
@@ -113,6 +111,17 @@ class UICanvas extends CanvasBase {
     }
     if (this.titleOn == false && this.titleOffset <= this.h / 2) {
       this.titleOffset = Math.min(this.titleOffset + dt / 3, this.h / 2);
+    }
+
+    if (player.isDespawned && !player.isRespawning && blinkOn) {
+      this.ctx.textAlign = "center";
+      this.ctx.textBaseline = "bottom";
+      this.ctx.font = "10px Retro";
+      this.ctx.fillText(
+        "PRESS ENTER TO RESPAWN",
+        this.w / 2,
+        this.h - this.padding,
+      );
     }
 
     this.t = frameT;
